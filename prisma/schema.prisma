@@ -1,0 +1,262 @@
+// Prisma schema for Bahrain Handyman Services Platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  phone         String    @unique
+  name          String
+  role          UserRole  @default(CLIENT)
+  passwordHash  String
+  verified      Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  clientProfile     ClientProfile?
+  technicianProfile TechnicianProfile?
+  bookings          Booking[]
+  reviews           Review[]
+}
+
+enum UserRole {
+  CLIENT
+  TECHNICIAN
+  ADMIN
+}
+
+model ClientProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  addresses         Address[]
+  favoriteServices  Service[]
+  amcContracts      AMCContract[]
+}
+
+model TechnicianProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  bio             String
+  photo           String?
+  experienceYears Int
+  certifications  String[]
+  backgroundCheck Boolean  @default(false)
+  rating          Float    @default(0)
+  completedJobs   Int      @default(0)
+  verified        Boolean  @default(false)
+  
+  specialties     Service[]
+  bookings        Booking[]
+  availability    TechnicianAvailability[]
+}
+
+model Service {
+  id          String          @id @default(cuid())
+  name        String          @unique
+  slug        String          @unique
+  category    ServiceCategory
+  description String
+  icon        String
+  priority    Int             @default(0)
+  active      Boolean         @default(true)
+  
+  pricingOptions PricingOption[]
+  bookings       Booking[]
+  technicians    TechnicianProfile[]
+  clients        ClientProfile[]
+}
+
+enum ServiceCategory {
+  AC_SERVICES
+  PLUMBING
+  ELECTRICAL
+  CARPENTRY
+  PAINTING
+  APPLIANCE_REPAIR
+  OUTDOOR_MAINTENANCE
+  GENERAL_HANDYMAN
+}
+
+model PricingOption {
+  id          String      @id @default(cuid())
+  serviceId   String
+  service     Service     @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  
+  name        String
+  type        PricingType
+  price       Float
+  duration    Int
+  description String
+  popular     Boolean     @default(false)
+}
+
+enum PricingType {
+  FLAT_RATE
+  HOURLY
+  QUOTE_REQUIRED
+}
+
+model Booking {
+  id              String              @id @default(cuid())
+  bookingNumber   String              @unique
+  
+  clientId        String
+  client          User                @relation(fields: [clientId], references: [id])
+  
+  technicianId    String?
+  technician      TechnicianProfile?  @relation(fields: [technicianId], references: [id])
+  
+  serviceId       String
+  service         Service             @relation(fields: [serviceId], references: [id])
+  
+  pricingOptionId String?
+  
+  status          BookingStatus       @default(PENDING)
+  scheduledDate   DateTime
+  timeSlot        String
+  
+  addressId       String
+  address         Address             @relation(fields: [addressId], references: [id])
+  
+  estimatedPrice  Float?
+  finalPrice      Float?
+  
+  notes           String?
+  internalNotes   String?
+  
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  completedAt     DateTime?
+  
+  payment         Payment?
+  review          Review?
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+model Address {
+  id             String        @id @default(cuid())
+  clientId       String
+  client         ClientProfile @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  type           String
+  area           String
+  block          String
+  road           String
+  building       String
+  flat           String?
+  additionalInfo String?
+  
+  lat            Float?
+  lng            Float?
+  
+  isDefault      Boolean       @default(false)
+  
+  bookings       Booking[]
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  bookingId     String        @unique
+  booking       Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  
+  amount        Float
+  method        PaymentMethod
+  status        PaymentStatus
+  
+  transactionId String?
+  paidAt        DateTime?
+  
+  createdAt     DateTime      @default(now())
+}
+
+enum PaymentMethod {
+  CASH
+  BENEFIT_PAY
+  CARD
+  BANK_TRANSFER
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  bookingId   String   @unique
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  
+  clientId    String
+  client      User     @relation(fields: [clientId], references: [id])
+  
+  rating      Int
+  comment     String?
+  photos      String[]
+  
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model TechnicianAvailability {
+  id            String            @id @default(cuid())
+  technicianId  String
+  technician    TechnicianProfile @relation(fields: [technicianId], references: [id], onDelete: Cascade)
+  
+  date          DateTime          @db.Date
+  timeSlots     String[]
+  isAvailable   Boolean           @default(true)
+  
+  @@unique([technicianId, date])
+}
+
+model AMCContract {
+  id          String         @id @default(cuid())
+  clientId    String
+  client      ClientProfile  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  tier        AMCTier
+  startDate   DateTime
+  endDate     DateTime
+  
+  price       Float
+  services    String[]
+  
+  status      ContractStatus
+  
+  createdAt   DateTime       @default(now())
+}
+
+enum AMCTier {
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+enum ContractStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}

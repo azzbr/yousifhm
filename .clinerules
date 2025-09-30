@@ -1,0 +1,412 @@
+# Cline Rules: Bahrain Handyman Services Platform
+
+## Project Context
+You are building a handyman services marketplace for Bahrain with these priorities:
+1. Trust and transparency (combat market's "professionalism deficit")
+2. Mobile-first design (80% mobile traffic expected)
+3. Bahraini market specifics (BHD currency, local areas, Arabic support future)
+4. B2C focus with future B2B expansion
+
+## Technology Stack - ENFORCE STRICTLY
+- Frontend: Next.js 14+ App Router, TypeScript, Tailwind CSS, shadcn/ui
+- Backend: Next.js API routes, Prisma ORM, PostgreSQL
+- Auth: NextAuth.js v5
+- State: React Query (server state), Zustand (client state)
+- Forms: React Hook Form + Zod validation
+- Maps: Google Maps API
+- DO NOT suggest: Vue, Angular, MongoDB, Firebase, or any tech not in approved stack
+
+## Code Style & Standards
+
+### TypeScript
+- ALWAYS use TypeScript, never JavaScript
+- Define interfaces for all props, API responses, database models
+- Use strict type checking
+- Avoid 'any' type - use 'unknown' if type is truly unknown
+- Export types from a central `types/` directory
+
+### Component Structure
+```typescript
+// CORRECT pattern for all components
+import { FC } from 'react';
+
+interface ComponentNameProps {
+  prop1: string;
+  prop2?: number;
+}
+
+export const ComponentName: FC<ComponentNameProps> = ({ prop1, prop2 }) => {
+  // Component logic
+  return (
+    <div>
+      {/* JSX */}
+    </div>
+  );
+};
+```
+
+### File Naming
+- Components: PascalCase (e.g., `BookingCard.tsx`)
+- Utilities: camelCase (e.g., `formatPrice.ts`)
+- API routes: kebab-case (e.g., `check-availability.ts`)
+- Pages: kebab-case (e.g., `our-technicians/page.tsx`)
+
+### Tailwind CSS
+- Use Tailwind utility classes ONLY - no custom CSS unless absolutely necessary
+- Mobile-first: write base styles for mobile, use `md:` `lg:` for larger screens
+- Extract repeated patterns into components, not `@apply` directives
+- Use shadcn/ui components as base, customize with Tailwind
+
+### Database & Prisma
+- Always use Prisma schema provided in project plan
+- Run `npx prisma generate` after schema changes
+- Use Prisma Client in server components/API routes only
+- Never expose Prisma queries to client-side code
+- Use transactions for multi-step operations
+
+## Security Requirements - NON-NEGOTIABLE
+
+### Authentication
+- NEVER store passwords in plain text
+- Use NextAuth.js for all auth operations
+- Implement role-based access control (CLIENT, TECHNICIAN, ADMIN)
+- Validate user roles on EVERY protected API route
+
+### API Routes
+```typescript
+// REQUIRED pattern for protected routes
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+
+export async function POST(req: Request) {
+  const session = await getServerSession(authOptions);
+  
+  if (!session) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  // Route logic
+}
+```
+
+### Input Validation
+- Validate ALL user inputs with Zod schemas
+- Sanitize data before database insertion
+- Use parameterized queries (Prisma handles this)
+- Never trust client-side validation alone
+
+### Environment Variables
+- Store all secrets in `.env.local`
+- Prefix client-exposed vars with `NEXT_PUBLIC_`
+- Never commit `.env.local` to git
+- Provide `.env.example` with dummy values
+
+## Bahrain-Specific Business Logic
+
+### Currency & Pricing
+- Always use BHD (Bahraini Dinar)
+- Format: BHD 25.500 (3 decimal places)
+- Use helper: `formatBHD(amount: number): string`
+
+### Phone Numbers
+- Format: +973 XXXX XXXX
+- Validation regex: `/^(\+973)?[0-9]{8}$/`
+- Store in E.164 format (+973XXXXXXXX)
+
+### Service Areas
+```typescript
+// Valid areas - reference this enum
+export enum BahrainArea {
+  MANAMA = 'Manama',
+  SAAR = 'Saar',
+  HAMALA = 'Hamala',
+  AMWAJ = 'Amwaj Islands',
+  RIFFA = 'Riffa',
+  MUHARRAQ = 'Muharraq',
+  BUDAIYA = 'Budaiya',
+  JUFFAIR = 'Juffair',
+  SEEF = 'Seef',
+  ADLIYA = 'Adliya',
+  // Add more as needed
+}
+```
+
+### Business Hours
+- Standard: Sunday-Thursday, 8:00 AM - 6:00 PM
+- Friday: 2:00 PM - 8:00 PM (post-prayer)
+- Saturday: Off (unless emergency)
+- Account for Islamic holidays (Eid, Ramadan adjusted hours)
+
+## Performance Requirements
+
+### Image Optimization
+- Use Next.js `<Image>` component for all images
+- Compress images before upload (WebP format preferred)
+- Lazy load images below fold
+- Provide proper width/height to prevent layout shift
+
+### Code Splitting
+- Use dynamic imports for heavy components
+- Lazy load admin/technician portals (most users don't need them)
+
+```typescript
+const AdminDashboard = dynamic(() => import('@/components/admin/Dashboard'), {
+  loading: () => <LoadingSpinner />,
+});
+```
+
+### API Response Times
+- Target: < 200ms for simple queries
+- Use database indexes on frequently queried fields
+- Implement Redis caching for repeated queries (Phase 2)
+- Paginate large data sets (20 items per page)
+
+## Task Execution Guidelines for Cline
+
+### When Creating New Features
+- Ask for clarification if requirements are ambiguous
+- Check existing code before creating new utilities
+- Update types in central location when adding new data structures
+- Run Prisma migrations if database schema changes
+- Test the feature by suggesting test scenarios
+- Update documentation if adding new patterns
+
+### Multi-Step Task Approach
+
+**STEP 1: Understand & Plan**
+- Read the task requirement
+- Check related files in codebase
+- Identify dependencies
+- Create mental task breakdown
+
+**STEP 2: Database (if needed)**
+- Update Prisma schema
+- Run migration
+- Generate Prisma client
+- Update TypeScript types
+
+**STEP 3: Backend/API**
+- Create/update API route
+- Implement validation
+- Add error handling
+- Test with sample data
+
+**STEP 4: Frontend**
+- Create/update component
+- Add form with validation
+- Connect to API
+- Handle loading/error states
+
+**STEP 5: Polish**
+- Add loading skeletons
+- Implement error boundaries
+- Ensure mobile responsiveness
+- Check accessibility
+
+### When Debugging
+- Check browser console first
+- Check server logs (terminal)
+- Verify database state (Prisma Studio)
+- Check network tab for API failures
+- Add strategic console.logs
+- Use debugger when needed
+
+### Before Committing Code
+- Run TypeScript check: `npm run type-check`
+- Run linter: `npm run lint`
+- Build locally: `npm run build`
+- Test critical user flows manually
+- Check mobile view in DevTools
+
+## Common Patterns - REUSE THESE
+
+### Loading States
+```typescript
+// Use this pattern consistently
+if (isLoading) return <LoadingSkeleton />;
+if (error) return <ErrorMessage error={error} />;
+if (!data) return <EmptyState />;
+
+return <ActualContent data={data} />;
+```
+
+### Error Handling
+```typescript
+// API route error pattern
+try {
+  // Operation
+  return Response.json({ success: true, data });
+} catch (error) {
+  console.error('Operation failed:', error);
+  return Response.json(
+    { error: 'Operation failed. Please try again.' },
+    { status: 500 }
+  );
+}
+```
+
+### Form Submission
+```typescript
+// Use React Hook Form + Zod
+const form = useForm<FormSchema>({
+  resolver: zodResolver(schema),
+  defaultValues: {...},
+});
+
+const onSubmit = async (data: FormSchema) => {
+  try {
+    setIsLoading(true);
+    const response = await fetch('/api/endpoint', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    
+    if (!response.ok) throw new Error('Submission failed');
+    
+    toast.success('Success message');
+    router.push('/redirect-path');
+  } catch (error) {
+    toast.error('Error message');
+  } finally {
+    setIsLoading(false);
+  }
+};
+```
+
+## Prohibited Actions - NEVER DO THESE
+❌ Install packages not in approved tech stack without asking
+❌ Modify Prisma schema without running migration
+❌ Expose sensitive data in client-side code
+❌ Use `any` type extensively
+❌ Create custom CSS files (use Tailwind)
+❌ Hardcode API keys or secrets
+❌ Skip input validation on API routes
+❌ Commit `.env.local` or `node_modules`
+❌ Use `<img>` tag instead of Next.js `<Image>`
+❌ Store user passwords in readable format
+❌ Create components without TypeScript types
+❌ Skip error handling in async operations
+
+## Questions to Ask Me
+
+### When you're uncertain, ASK about:
+- Business logic specifics (pricing rules, booking logic)
+- Design preferences (color schemes, layouts)
+- Priority of features (which to build first)
+- External service integration details
+- Content and copy text
+- Edge case handling
+
+### DON'T ask about:
+- Basic TypeScript syntax (you should know this)
+- Standard Next.js patterns (use documentation)
+- Common React patterns (use best practices)
+- Whether to use approved tech stack (follow rules)
+
+## Workspace Checkpoints
+Take workspace snapshots:
+- Before major refactoring
+- After completing a major feature
+- Before Prisma schema migrations
+- When trying experimental approaches
+
+Label checkpoints clearly: "Before booking system refactor" not "checkpoint1"
+
+## Testing Approach
+Currently NO automated testing (MVP focus), but write testable code:
+- Pure functions for business logic
+- Separate API logic from route handlers
+- Modular components
+- Clear function responsibilities
+
+Future: Add Jest + React Testing Library in Phase 2
+
+## Documentation Requirements
+Update these as you build:
+- `README.md` - Setup instructions
+- `CHANGELOG.md` - Feature additions
+- `.env.example` - New environment variables
+- Inline comments for complex business logic ONLY
+
+Don't over-comment - code should be self-documenting through clear naming.
+
+## Priority Order for Feature Conflicts
+If you must choose, prioritize:
+1. Security > Features
+2. Mobile UX > Desktop UX
+3. Core booking flow > Nice-to-have features
+4. Performance > Visual polish
+5. Data integrity > User convenience
+
+## Model Selection Guidance
+Use these models based on task complexity:
+- **Simple tasks** (styling, small components): GPT-4 Turbo or Claude 3.5 Sonnet
+- **Complex features** (booking system, API design): Claude Opus 4 or GPT-4
+- **Refactoring**: Claude 3.5 Sonnet
+- **Bug fixing**: GPT-4 Turbo (faster iterations)
+
+## Communication Style
+When reporting progress:
+- Be concise and specific
+- Mention files changed
+- Highlight any issues encountered
+- Suggest next steps
+- Ask clarifying questions early
+
+**Example:** "Created BookingCard component in `components/booking/BookingCard.tsx`. Integrated with API route. Mobile responsive. Ready to test. Should I add booking cancellation feature next?"
+
+## End of Rules
+These rules ensure consistency, quality, and alignment with business goals. Update this file as project evolves.
+
+---
+
+## Additional Setup Files
+
+### `cline_task_template.md`
+Create this file for complex tasks:
+```markdown
+# Task: [Feature Name]
+
+## Objective
+[Clear goal statement]
+
+## Requirements
+- [ ] Requirement 1
+- [ ] Requirement 2
+
+## Files to Create/Modify
+- `path/to/file1.tsx`
+- `path/to/file2.ts`
+
+## Dependencies
+- Requires: [other features/APIs]
+- Blocks: [what this blocks]
+
+## Implementation Steps
+1. Step 1
+2. Step 2
+
+## Testing Checklist
+- [ ] Mobile responsive
+- [ ] Loading states
+- [ ] Error handling
+- [ ] Type-safe
+
+## Rollback Plan
+[How to undo if needed]
+```
+
+## .clinerules vs .cursorrules
+Since Cline uses the same concept as Cursor, you can use either filename. I recommend `.clinerules` for clarity.
+
+## How to Use These Rules with Cline
+
+1. Copy the entire rules block into `.clinerules` at your project root
+2. Reference specific sections when giving Cline tasks:
+   - "Follow the Component Structure pattern from .clinerules"
+   - "Use the Loading States pattern"
+3. Update rules as you discover new patterns or requirements
+4. Take checkpoints before major changes (Cline feature)
+5. Review Cline's work against these rules before accepting
+
+This comprehensive ruleset will ensure Cline builds your handyman platform consistently, securely, and aligned with Bahrain market requirements. The rules prioritize your trust-and-professionalism USP through code quality and security practices.
