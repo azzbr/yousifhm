@@ -54,7 +54,7 @@ export function AddressStep() {
           ))}
         </div>
         {errors.address?.type && (
-          <p className="mt-2 text-sm text-red-600">{errors.address.type.message}</p>
+          <p className="mt-2 text-sm text-red-600">{String((errors.address.type as any)?.message)}</p>
         )}
       </div>
 
