@@ -75,7 +75,7 @@ export function AddressStep() {
           ))}
         </select>
         {errors.address?.area && (
-          <p className="mt-2 text-sm text-red-600">{errors.address.area.message}</p>
+          <p className="mt-2 text-sm text-red-600">{String((errors.address?.area as any)?.message)}</p>
         )}
       </div>
 
@@ -93,7 +93,7 @@ export function AddressStep() {
             placeholder="e.g. 123"
           />
           {errors.address?.block && (
-            <p className="mt-1 text-sm text-red-600">{errors.address.block.message}</p>
+            <p className="mt-1 text-sm text-red-600">{String((errors.address?.block as any)?.message)}</p>
           )}
         </div>
 
@@ -109,7 +109,7 @@ export function AddressStep() {
             placeholder="e.g. Sunny Road"
           />
           {errors.address?.road && (
-            <p className="mt-1 text-sm text-red-600">{errors.address.road.message}</p>
+            <p className="mt-1 text-sm text-red-600">{String((errors.address?.road as any)?.message)}</p>
           )}
         </div>
       </div>
@@ -128,7 +128,7 @@ export function AddressStep() {
             placeholder="e.g. 456"
           />
           {errors.address?.building && (
-            <p className="mt-1 text-sm text-red-600">{errors.address.building.message}</p>
+            <p className="mt-1 text-sm text-red-600">{String((errors.address?.building as any)?.message)}</p>
           )}
         </div>
 
@@ -144,7 +144,7 @@ export function AddressStep() {
             placeholder="e.g. 12A (optional)"
           />
           {errors.address?.flat && (
-            <p className="mt-1 text-sm text-red-600">{errors.address.flat.message}</p>
+            <p className="mt-1 text-sm text-red-600">{String((errors.address?.flat as any)?.message)}</p>
           )}
         </div>
       </div>
@@ -164,7 +164,7 @@ export function AddressStep() {
           Help our technician find your location easily. Mention nearby landmarks, parking restrictions, or any special instructions.
         </p>
         {errors.address?.additionalInfo && (
-          <p className="mt-1 text-sm text-red-600">{errors.address.additionalInfo.message}</p>
+          <p className="mt-1 text-sm text-red-600">{String((errors.address?.additionalInfo as any)?.message)}</p>
         )}
       </div>
 
