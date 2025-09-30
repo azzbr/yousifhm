@@ -132,7 +132,10 @@ model Booking {
   
   addressId       String
   address         Address             @relation(fields: [addressId], references: [id])
-  
+
+  contactId       String
+  contact         Contact             @relation(fields: [contactId], references: [id])
+
   estimatedPrice  Float?
   finalPrice      Float?
   
@@ -157,11 +160,24 @@ enum BookingStatus {
   REFUNDED
 }
 
+model Contact {
+  id        String   @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String   @unique
+  phone     String
+
+  bookings  Booking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Address {
   id             String        @id @default(cuid())
   clientId       String
   client         ClientProfile @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  
+
   type           String
   area           String
   block          String
@@ -169,12 +185,12 @@ model Address {
   building       String
   flat           String?
   additionalInfo String?
-  
+
   lat            Float?
   lng            Float?
-  
+
   isDefault      Boolean       @default(false)
-  
+
   bookings       Booking[]
 }
 
