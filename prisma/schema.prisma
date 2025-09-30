@@ -93,13 +93,15 @@ model PricingOption {
   id          String      @id @default(cuid())
   serviceId   String
   service     Service     @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  
+
   name        String
   type        PricingType
   price       Float
   duration    Int
   description String
   popular     Boolean     @default(false)
+
+  bookings    Booking[]
 }
 
 enum PricingType {
@@ -122,6 +124,7 @@ model Booking {
   service         Service             @relation(fields: [serviceId], references: [id])
   
   pricingOptionId String?
+  pricingOption   PricingOption? @relation(fields: [pricingOptionId], references: [id])
   
   status          BookingStatus       @default(PENDING)
   scheduledDate   DateTime
