@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await auth()
 
-    if (!session?.user?.role || session.user.role !== 'ADMIN') {
+    if (!session?.user || ((session.user as any)?.role !== 'ADMIN')) {
       return NextResponse.json(
         { success: false, message: 'Access denied. Admin privileges required.' },
         { status: 403 }
@@ -119,7 +119,7 @@ export async function PATCH(request: NextRequest) {
   try {
     const session = await auth()
 
-    if (!session?.user?.role || session.user.role !== 'ADMIN') {
+    if (!session?.user || ((session.user as any)?.role !== 'ADMIN')) {
       return NextResponse.json(
         { success: false, message: 'Access denied. Admin privileges required.' },
         { status: 403 }
@@ -149,26 +149,9 @@ export async function PATCH(request: NextRequest) {
       internalNotes: notes
     }
 
-    // Handle technician assignment
-    if (technicianId && status === 'ASSIGNED') {
-      // Create job assignment record
-      await prisma.jobAssignment.create({
-        data: {
-          bookingId,
-          technicianId,
-          assignedById: session.user.id,
-          assignedAt: new Date(),
-          notes: `Assigned by admin: ${notes || 'No additional notes'}`
-        }
-      })
-
+    // Update technician assignment if provided
+    if (technicianId) {
       updateData.technicianId = technicianId
-
-      // Update technician's booking count
-      await prisma.technicianProfile.update({
-        where: { userId: technicianId },
-        data: { assignedJobs: { increment: 1 } }
-      })
     }
 
     // Update booking status
