@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await auth()
 
-    if (!session?.user?.role || (session?.user as any).role !== 'TECHNICIAN') {
+    if (!session?.user || ((session?.user as any)?.role !== 'TECHNICIAN')) {
       return NextResponse.json(
         { success: false, message: 'Access denied. Technician privileges required.' },
         { status: 403 }
@@ -88,7 +88,7 @@ export async function PATCH(request: NextRequest) {
   try {
     const session = await auth()
 
-    if (!session?.user?.role || (session.user as any).role !== 'TECHNICIAN') {
+    if (!session?.user || ((session.user as any)?.role !== 'TECHNICIAN')) {
       return NextResponse.json(
         { success: false, message: 'Access denied. Technician privileges required.' },
         { status: 403 }
@@ -186,12 +186,11 @@ export async function PATCH(request: NextRequest) {
       }
     })
 
-    // If completing job, update technician's job counts
+    // If completing job, update technician's completed job count
     if (status === 'COMPLETED') {
       await prisma.technicianProfile.update({
         where: { userId: session.user.id },
         data: {
-          assignedJobs: { decrement: 1 },
           completedJobs: { increment: 1 }
         }
       })
@@ -217,7 +216,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await auth()
 
-    if (!session?.user?.role || (session.user as any).role !== 'TECHNICIAN') {
+    if (!session?.user || ((session.user as any)?.role !== 'TECHNICIAN')) {
       return NextResponse.json(
         { success: false, message: 'Access denied. Technician privileges required.' },
         { status: 403 }
