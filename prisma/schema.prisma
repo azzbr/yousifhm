@@ -25,6 +25,7 @@ model User {
   technicianProfile TechnicianProfile?
   bookings          Booking[]
   reviews           Review[]
+  assignedJobs      JobAssignment[] @relation("AssignedByUser")
 }
 
 enum UserRole {
@@ -44,22 +45,67 @@ model ClientProfile {
 }
 
 model TechnicianProfile {
-  id              String   @id @default(cuid())
-  userId          String   @unique
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  bio             String
-  photo           String?
-  experienceYears Int
-  certifications  String[]
-  backgroundCheck Boolean  @default(false)
-  rating          Float    @default(0)
-  completedJobs   Int      @default(0)
-  verified        Boolean  @default(false)
-  
-  specialties     Service[]
-  bookings        Booking[]
-  availability    TechnicianAvailability[]
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Basic Info
+  bio                 String
+  photo               String?
+  phone               String?  // Additional contact
+  dateOfBirth         DateTime?
+
+  // Professional Details
+  experienceYears     Int
+  certifications      String[]
+  licenses            String[] // Professional licenses/certificates
+  backgroundCheck     Boolean  @default(false)
+  verified            Boolean  @default(false)
+
+  // Performance & Ratings
+  rating              Float    @default(0)
+  reviewCount         Int      @default(0)
+  completedJobs       Int      @default(0)
+  onTimeRate          Float    @default(0)
+  customerSatisfaction Float   @default(0)
+
+  // Service Areas & Specialties
+  serviceAreas        String[] // Bahrain areas they serve
+  specialties         Service[]
+  preferredServices   Service[] // Their top specialties
+
+  // Logistics
+  hasVehicle          Boolean  @default(false)
+  vehicleType         String?  // Required for larger jobs
+  canTravelOutsideCity Boolean @default(true)
+
+  // Financial
+  hourlyRate          Float?   // If applicable
+  commissionRate      Float?   // Admin fee percentage
+
+  // Status & Scheduling
+  status              TechnicianStatus @default(INACTIVE)
+  maxJobsPerDay       Int      @default(5)
+  preferredTimes      String[] // Morning, afternoon, evening
+
+  // Business Relations
+  bookings            Booking[]
+  availability        TechnicianAvailability[]
+  jobAssignments      JobAssignment[]
+
+  // Internal Notes
+  internalNotes       String?
+  adminRating         Int?     // Admin performance rating
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+enum TechnicianStatus {
+  INACTIVE
+  ACTIVE
+  SUSPENDED
+  UNDER_REVIEW
 }
 
 model Service {
@@ -224,30 +270,72 @@ enum PaymentStatus {
 }
 
 model Review {
-  id          String   @id @default(cuid())
-  bookingId   String   @unique
-  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  
-  clientId    String
-  client      User     @relation(fields: [clientId], references: [id])
-  
-  rating      Int
-  comment     String?
-  photos      String[]
-  
-  published   Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  id               String   @id @default(cuid())
+  bookingId        String   @unique
+  booking          Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  clientId         String
+  client           User     @relation(fields: [clientId], references: [id])
+
+  // Overall Rating
+  overallRating    Int      // 1-5 stars
+
+  // Service-Specific Ratings
+  qualityRating    Int?     // Work quality 1-5
+  timelinessRating Int?     // On-time performance 1-5
+  communicationRating Int?  // Communication 1-5
+  valueRating      Int?     // Value for money 1-5
+
+  // Feedback
+  comment          String?
+  positives        String?  // What they liked
+  improvements     String?  // What could be better
+  photos           String[]
+
+  // Publishing & Moderation
+  published        Boolean  @default(false) // Admin approval required
+  moderationNotes  String?
+  moderatedById    String?
+
+  // Response
+  response         String?  // Technician/business response
+  responseAt       DateTime?
+  responseById     String?
+
+  // Trust Signals
+  verifiedJob      Boolean  @default(true) // Confirmed job completion
+  helpful          Int      @default(0)    // Community helpful votes
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model JobAssignment {
+  id            String            @id @default(cuid())
+  bookingId     String            @unique
+  booking       Booking           @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  technicianId  String
+  technician    TechnicianProfile @relation(fields: [technicianId], references: [id], onDelete: Cascade)
+
+  assignedById  String
+  assignedBy    User              @relation("AssignedByUser", fields: [assignedById], references: [id])
+
+  assignedAt    DateTime          @default(now())
+  notes         String?
+
+  @@unique([bookingId])
 }
 
 model TechnicianAvailability {
   id            String            @id @default(cuid())
   technicianId  String
   technician    TechnicianProfile @relation(fields: [technicianId], references: [id], onDelete: Cascade)
-  
+
   date          DateTime          @db.Date
   timeSlots     String[]
   isAvailable   Boolean           @default(true)
-  
+
   @@unique([technicianId, date])
 }
 
