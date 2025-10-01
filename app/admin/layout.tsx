@@ -67,7 +67,7 @@ export default function AdminLayout({
           <div className="flex items-center space-x-2">
             <Building2 className="w-8 h-8 text-blue-600" />
             <div>
-              <h1 className="text-xl font-bold text-gray-900">BahraSpanner</h1>
+              <h1 className="text-xl font-bold text-gray-900">Bahrain Handyman</h1>
               <p className="text-sm text-gray-500">Admin Panel</p>
             </div>
           </div>
@@ -80,7 +80,7 @@ export default function AdminLayout({
         </div>
 
         {/* Navigation */}
-        <nav className="p-4 space-y-2">
+        <nav className="p-4 space-y-3">
           {navigation.map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.href
@@ -103,7 +103,7 @@ export default function AdminLayout({
         </nav>
 
         {/* User info and logout */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
+        <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-gray-200">
           <div className="flex items-center space-x-3 mb-4">
             <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
               <span className="text-white text-sm font-medium">
@@ -155,7 +155,7 @@ export default function AdminLayout({
         </div>
 
         {/* Page content */}
-        <main className="px-4 py-8 lg:px-6">
+        <main className="px-4 pt-4 pb-8 lg:px-6">
           {children}
         </main>
       </div>

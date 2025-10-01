@@ -58,21 +58,35 @@ export default function SignInPage() {
     setError(null)
 
     try {
+      // Use the admin dummy account directly for demo
+      if (roleConfig.role === 'admin') {
+        await signIn('credentials', {
+          email: 'admin@bahraindemo.com',
+          password: 'admin123',
+          role: 'admin',
+          redirect: false,
+        })
+
+        // Check session and redirect manually
+        const session = await getSession()
+        if (session?.user && (session.user as any).role === 'ADMIN') {
+          router.push('/admin')
+          return
+        }
+      }
+
+      // For other roles, use direct approach
       const result = await signIn('credentials', {
         email: roleConfig.demoEmail,
         password: roleConfig.demoPassword,
-        role: roleConfig.role,
+        role: roleConfig.role.toLowerCase(),
         redirect: false,
       })
 
-      if (result?.error) {
-        setError('Demo account not available. Please contact administrator.')
-      } else {
-        // Check session and redirect based on role
+      if (result?.ok) {
         const session = await getSession()
         if (session?.user) {
           const userRole = (session.user as any).role
-
           if (userRole === 'ADMIN') {
             router.push('/admin')
           } else if (userRole === 'TECHNICIAN') {
@@ -81,6 +95,8 @@ export default function SignInPage() {
             router.push('/')
           }
         }
+      } else {
+        setError('Demo account login failed. Please try manual login.')
       }
     } catch (err) {
       setError('Login failed. Please try again.')
@@ -137,7 +153,7 @@ export default function SignInPage() {
             <Shield className="w-6 h-6 text-blue-600" />
           </div>
           <h2 className="mt-6 text-3xl font-bold text-gray-900">
-            Sign in to BahraSpanner
+            Sign in to Bahrain Handyman
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Choose your role to access the platform
@@ -290,7 +306,7 @@ export default function SignInPage() {
         {/* Back to Home */}
         <div className="text-center">
           <Link href="/" className="text-sm text-gray-600 hover:text-gray-900">
-            ← Back to BahraSpanner
+            ← Back to Bahrain Handyman
           </Link>
         </div>
       </div>

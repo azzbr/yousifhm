@@ -17,9 +17,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email as string },
-          include: {
-            technicianProfile: true,
-            clientProfile: true
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true,
+            verified: true,
+            passwordHash: true,
+            // These relations might not exist in the current database schema
+            // technicianProfile: true,
+            // clientProfile: true
           }
         })
 

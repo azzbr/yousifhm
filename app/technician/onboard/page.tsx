@@ -196,7 +196,7 @@ export default function TechnicianOnboard() {
               <Wrench className="w-6 h-6 text-blue-600" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900">Join Our Team</h1>
-            <p className="text-gray-600 mt-2">Become a certified technician on BahraSpanner</p>
+            <p className="text-gray-600 mt-2">Become a certified technician on Bahrain Handyman</p>
           </div>
         </div>
       </div>

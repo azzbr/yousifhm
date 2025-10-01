@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import Navigation from '@/components/navigation'
 import Footer from '@/components/footer'
+import SessionWrapper from '@/components/session-wrapper'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -45,13 +46,15 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className={`${inter.className} antialiased`}>
-        <div className="min-h-screen flex flex-col">
-          <Navigation />
-          <main className="flex-grow">
-            {children}
-          </main>
-          <Footer />
-        </div>
+        <SessionWrapper>
+          <div className="min-h-screen flex flex-col">
+            <Navigation />
+            <main className="flex-grow">
+              {children}
+            </main>
+            <Footer />
+          </div>
+        </SessionWrapper>
       </body>
     </html>
   )
