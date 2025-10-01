@@ -71,8 +71,8 @@ model TechnicianProfile {
 
   // Service Areas & Specialties
   serviceAreas        String[] // Bahrain areas they serve
-  specialties         Service[]
-  preferredServices   Service[] // Their top specialties
+  specialties         Service[] @relation("TechnicianSpecialties")
+  preferredServices   Service[] @relation("TechnicianPreferredServices") // Their top specialties
 
   // Logistics
   hasVehicle          Boolean  @default(false)
@@ -92,6 +92,7 @@ model TechnicianProfile {
   bookings            Booking[]
   availability        TechnicianAvailability[]
   jobAssignments      JobAssignment[]
+  services            Service[] // Reverse relation for technicians field in Service
 
   // Internal Notes
   internalNotes       String?
@@ -122,6 +123,8 @@ model Service {
   bookings       Booking[]
   technicians    TechnicianProfile[]
   clients        ClientProfile[]
+  specialtyTechnicians TechnicianProfile[] @relation("TechnicianSpecialties")
+  preferredTechnicians TechnicianProfile[] @relation("TechnicianPreferredServices")
 }
 
 enum ServiceCategory {
@@ -191,9 +194,9 @@ model Booking {
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
   completedAt     DateTime?
-  
   payment         Payment?
   review          Review?
+  assignment      JobAssignment? // One-to-one relation with job assignment
 }
 
 enum BookingStatus {
@@ -312,7 +315,7 @@ model Review {
 
 model JobAssignment {
   id            String            @id @default(cuid())
-  bookingId     String            @unique
+  bookingId     String            @map("job_assignment_booking_id")
   booking       Booking           @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 
   technicianId  String
@@ -324,7 +327,7 @@ model JobAssignment {
   assignedAt    DateTime          @default(now())
   notes         String?
 
-  @@unique([bookingId])
+  @@unique([bookingId], map: "job_assignment_booking_id_unique")
 }
 
 model TechnicianAvailability {
