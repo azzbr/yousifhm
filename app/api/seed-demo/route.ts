@@ -13,16 +13,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Skip authentication in development mode
-    if (process.env.NODE_ENV === 'production') {
-      const session = await auth()
-      if (!session?.user?.role || (session.user as any).role !== 'ADMIN') {
-        return NextResponse.json(
-          { success: false, message: 'Admin access required' },
-          { status: 403 }
-        )
-      }
-    }
+    // In development mode, skip authentication for easier testing
+    // In production, authentication should be enforced
+    // Note: This route is already restricted to development mode only at the top
 
     // Seed demo accounts
     const demoUsers = [
@@ -111,7 +104,7 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const session = await auth()
-    if (!session?.user?.role || (session.user as any).role !== 'ADMIN') {
+    if (!session?.user || ((session.user as any)?.role !== 'ADMIN')) {
       return NextResponse.json(
         { success: false, message: 'Admin access required' },
         { status: 403 }
