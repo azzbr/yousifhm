@@ -109,7 +109,7 @@ export default function AdminReviews() {
             ? {
                 ...review,
                 published: action === 'approve',
-                moderationNotes: notes
+                moderationNotes: notes || null
               }
             : review
         ))
