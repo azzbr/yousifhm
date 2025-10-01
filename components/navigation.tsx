@@ -51,7 +51,7 @@ const Navigation = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-4">
-            <Link href="/book/general">
+            <Link href="/auth/signin">
               <Button variant="ghost" size="sm">
                 <LucideIcons.User className="w-4 h-4 mr-2" />
                 Sign In
@@ -100,7 +100,7 @@ const Navigation = () => {
               ))}
 
               <div className="flex flex-col gap-2 pt-4 border-t">
-                <Link href="/book/general" onClick={() => setIsMenuOpen(false)}>
+                <Link href="/auth/signin" onClick={() => setIsMenuOpen(false)}>
                   <Button variant="ghost" size="sm" className="justify-start w-full">
                     <LucideIcons.User className="w-4 h-4 mr-2" />
                     Sign In
