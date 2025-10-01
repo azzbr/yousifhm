@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await auth()
 
-    if (!session?.user?.role || (session.user as any).role !== 'ADMIN') {
+    if (!session?.user || ((session.user as any)?.role !== 'ADMIN')) {
       return NextResponse.json(
         { success: false, message: 'Access denied. Admin privileges required.' },
         { status: 403 }
@@ -55,7 +55,7 @@ export async function PATCH(request: NextRequest) {
   try {
     const session = await auth()
 
-    if (!session?.user?.role || (session.user as any).role !== 'ADMIN') {
+    if (!session?.user || ((session.user as any)?.role !== 'ADMIN')) {
       return NextResponse.json(
         { success: false, message: 'Access denied. Admin privileges required.' },
         { status: 403 }
