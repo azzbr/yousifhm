@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
@@ -89,6 +89,7 @@ export default function TechnicianOnboard() {
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const {
     register,
@@ -137,6 +138,7 @@ export default function TechnicianOnboard() {
 
   const onSubmit = async (data: TechnicianFormData) => {
     setLoading(true)
+    console.log('Submitting technician data:', JSON.stringify(data, null, 2))
 
     try {
       // Hash password
@@ -144,24 +146,32 @@ export default function TechnicianOnboard() {
 
       // Create user account
       const { name, email, phone, ...technicianData } = data
+      const payload = {
+        name,
+        email,
+        phone,
+        passwordHash: hashedPassword,
+        ...technicianData,
+        status: 'UNDER_REVIEW' // New technicians start under review
+      }
+      console.log('Sending to API:', JSON.stringify(payload, null, 2))
+
       const userResponse = await fetch('/api/auth/register/technician', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          email,
-          phone,
-          passwordHash: hashedPassword,
-          ...technicianData,
-          status: 'UNDER_REVIEW' // New technicians start under review
-        })
+        body: JSON.stringify(payload)
       })
 
+      console.log('API Response status:', userResponse.status)
+      const responseText = await userResponse.text()
+      console.log('API Response text:', responseText)
+
       if (!userResponse.ok) {
-        throw new Error('Failed to create account')
+        throw new Error(`API Error: ${userResponse.status} - ${responseText}`)
       }
 
-      const result = await userResponse.json()
+      const result = JSON.parse(responseText)
+      console.log('Success result:', result)
 
       alert('Account created successfully! Our team will review your application and contact you within 24-48 hours.')
 
@@ -169,10 +179,14 @@ export default function TechnicianOnboard() {
 
     } catch (error) {
       console.error('Submission error:', error)
-      alert('Failed to create your account. Please try again.')
+      alert(`Failed to create your account: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleBrowseClick = () => {
+    fileInputRef.current?.click()
   }
 
   const steps = [
@@ -450,7 +464,7 @@ export default function TechnicianOnboard() {
                     <Upload className="w-8 h-8 text-gray-400 mx-auto mb-4" />
                     <div className="text-sm text-gray-600 mb-2">
                       Drag & drop files here, or{' '}
-                      <button className="text-blue-600 hover:text-blue-700 underline">
+                      <button type="button" className="text-blue-600 hover:text-blue-700 underline" onClick={handleBrowseClick}>
                         browse files
                       </button>
                     </div>
@@ -458,6 +472,7 @@ export default function TechnicianOnboard() {
                   </div>
                   {/* File input */}
                   <input
+                    ref={fileInputRef}
                     type="file"
                     multiple
                     accept=".pdf,.jpg,.jpeg,.png"

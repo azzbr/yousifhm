@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
+    console.log('Received technician registration data:', JSON.stringify(data, null, 2))
 
     // Extract user data and technician data
     const {
@@ -17,6 +18,7 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!name || !email || !phone || !passwordHash) {
+      console.error('Missing required fields:', { name: !!name, email: !!email, phone: !!phone, passwordHash: !!passwordHash })
       return NextResponse.json(
         { success: false, message: 'Name, email, phone, and password are required' },
         { status: 400 }

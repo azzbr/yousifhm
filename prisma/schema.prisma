@@ -10,22 +10,22 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  phone         String    @unique
-  name          String
-  role          UserRole  @default(CLIENT)
-  passwordHash  String
-  verified      Boolean   @default(false)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  
+  id           String   @id @default(cuid())
+  email        String   @unique
+  phone        String   @unique
+  name         String
+  role         UserRole @default(CLIENT)
+  passwordHash String
+  verified     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
   // Relations
   clientProfile     ClientProfile?
   technicianProfile TechnicianProfile?
   bookings          Booking[]
   reviews           Review[]
-  assignedJobs      JobAssignment[] @relation("AssignedByUser")
+  assignedJobs      JobAssignment[]    @relation("AssignedByUser")
 }
 
 enum UserRole {
@@ -35,77 +35,77 @@ enum UserRole {
 }
 
 model ClientProfile {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  addresses         Address[]
-  favoriteServices  Service[]
-  amcContracts      AMCContract[]
+  addresses        Address[]
+  favoriteServices Service[]
+  amcContracts     AMCContract[]
 
   // Notification preferences stored as JSON
   notificationSettings String?
 
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model TechnicianProfile {
-  id                  String   @id @default(cuid())
-  userId              String   @unique
-  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Basic Info
-  bio                 String
-  photo               String?
-  phone               String?  // Additional contact
-  dateOfBirth         DateTime?
+  bio         String
+  photo       String?
+  phone       String? // Additional contact
+  dateOfBirth DateTime?
 
   // Professional Details
-  experienceYears     Int
-  certifications      String[]
-  licenses            String[] // Professional licenses/certificates
-  backgroundCheck     Boolean  @default(false)
-  verified            Boolean  @default(false)
+  experienceYears Int
+  certifications  String[]
+  licenses        String[] // Professional licenses/certificates
+  backgroundCheck Boolean  @default(false)
+  verified        Boolean  @default(false)
 
   // Performance & Ratings
-  rating              Float    @default(0)
-  reviewCount         Int      @default(0)
-  completedJobs       Int      @default(0)
-  onTimeRate          Float    @default(0)
-  customerSatisfaction Float   @default(0)
+  rating               Float @default(0)
+  reviewCount          Int   @default(0)
+  completedJobs        Int   @default(0)
+  onTimeRate           Float @default(0)
+  customerSatisfaction Float @default(0)
 
   // Service Areas & Specialties
-  serviceAreas        String[] // Bahrain areas they serve
-  specialties         Service[] @relation("TechnicianSpecialties")
-  preferredServices   Service[] @relation("TechnicianPreferredServices") // Their top specialties
+  serviceAreas      String[] // Bahrain areas they serve
+  specialties       String[] // Service names they provide
+  preferredServices String[] // Their top specialty names
 
   // Logistics
-  hasVehicle          Boolean  @default(false)
-  vehicleType         String?  // Required for larger jobs
+  hasVehicle           Boolean @default(false)
+  vehicleType          String? // Required for larger jobs
   canTravelOutsideCity Boolean @default(true)
 
   // Financial
-  hourlyRate          Float?   // If applicable
-  commissionRate      Float?   // Admin fee percentage
+  hourlyRate     Float? // If applicable
+  commissionRate Float? // Admin fee percentage
 
   // Status & Scheduling
-  status              TechnicianStatus @default(INACTIVE)
-  maxJobsPerDay       Int      @default(5)
-  preferredTimes      String[] // Morning, afternoon, evening
+  status         TechnicianStatus @default(INACTIVE)
+  maxJobsPerDay  Int              @default(5)
+  preferredTimes String[] // Morning, afternoon, evening
 
   // Business Relations
-  bookings            Booking[]
-  availability        TechnicianAvailability[]
-  jobAssignments      JobAssignment[]
-  services            Service[] // Reverse relation for technicians field in Service
+  bookings       Booking[]
+  availability   TechnicianAvailability[]
+  jobAssignments JobAssignment[]
+  services       Service[] // Reverse relation for technicians field in Service
 
   // Internal Notes
-  internalNotes       String?
-  adminRating         Int?     // Admin performance rating
+  internalNotes String?
+  adminRating   Int? // Admin performance rating
 
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum TechnicianStatus {
@@ -124,13 +124,11 @@ model Service {
   icon        String
   priority    Int             @default(0)
   active      Boolean         @default(true)
-  
+
   pricingOptions PricingOption[]
   bookings       Booking[]
   technicians    TechnicianProfile[]
   clients        ClientProfile[]
-  specialtyTechnicians TechnicianProfile[] @relation("TechnicianSpecialties")
-  preferredTechnicians TechnicianProfile[] @relation("TechnicianPreferredServices")
 }
 
 enum ServiceCategory {
@@ -145,9 +143,9 @@ enum ServiceCategory {
 }
 
 model PricingOption {
-  id          String      @id @default(cuid())
-  serviceId   String
-  service     Service     @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 
   name        String
   type        PricingType
@@ -156,7 +154,7 @@ model PricingOption {
   description String
   popular     Boolean     @default(false)
 
-  bookings    Booking[]
+  bookings Booking[]
 }
 
 enum PricingType {
@@ -166,43 +164,43 @@ enum PricingType {
 }
 
 model Booking {
-  id              String              @id @default(cuid())
-  bookingNumber   String              @unique
-  
-  clientId        String
-  client          User                @relation(fields: [clientId], references: [id])
-  
-  technicianId    String?
-  technician      TechnicianProfile?  @relation(fields: [technicianId], references: [id])
-  
-  serviceId       String
-  service         Service             @relation(fields: [serviceId], references: [id])
-  
+  id            String @id @default(cuid())
+  bookingNumber String @unique
+
+  clientId String
+  client   User   @relation(fields: [clientId], references: [id])
+
+  technicianId String?
+  technician   TechnicianProfile? @relation(fields: [technicianId], references: [id])
+
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id])
+
   pricingOptionId String?
   pricingOption   PricingOption? @relation(fields: [pricingOptionId], references: [id])
-  
-  status          BookingStatus       @default(PENDING)
-  scheduledDate   DateTime
-  timeSlot        String
-  
-  addressId       String
-  address         Address             @relation(fields: [addressId], references: [id])
 
-  contactId       String
-  contact         Contact             @relation(fields: [contactId], references: [id])
+  status        BookingStatus @default(PENDING)
+  scheduledDate DateTime
+  timeSlot      String
 
-  estimatedPrice  Float?
-  finalPrice      Float?
-  
-  notes           String?
-  internalNotes   String?
-  
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-  completedAt     DateTime?
-  payment         Payment?
-  review          Review?
-  assignment      JobAssignment? // One-to-one relation with job assignment
+  addressId String
+  address   Address @relation(fields: [addressId], references: [id])
+
+  contactId String
+  contact   Contact @relation(fields: [contactId], references: [id])
+
+  estimatedPrice Float?
+  finalPrice     Float?
+
+  notes         String?
+  internalNotes String?
+
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  completedAt DateTime?
+  payment     Payment?
+  review      Review?
+  assignment  JobAssignment? // One-to-one relation with job assignment
 }
 
 enum BookingStatus {
@@ -216,22 +214,22 @@ enum BookingStatus {
 }
 
 model Contact {
-  id        String   @id @default(cuid())
+  id        String @id @default(cuid())
   firstName String
   lastName  String
-  email     String   @unique
+  email     String @unique
   phone     String
 
-  bookings  Booking[]
+  bookings Booking[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Address {
-  id             String        @id @default(cuid())
-  clientId       String
-  client         ClientProfile @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  id       String        @id @default(cuid())
+  clientId String
+  client   ClientProfile @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   type           String
   area           String
@@ -241,27 +239,27 @@ model Address {
   flat           String?
   additionalInfo String?
 
-  lat            Float?
-  lng            Float?
+  lat Float?
+  lng Float?
 
-  isDefault      Boolean       @default(false)
+  isDefault Boolean @default(false)
 
-  bookings       Booking[]
+  bookings Booking[]
 }
 
 model Payment {
-  id            String        @id @default(cuid())
-  bookingId     String        @unique
-  booking       Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  
-  amount        Float
-  method        PaymentMethod
-  status        PaymentStatus
-  
+  id        String  @id @default(cuid())
+  bookingId String  @unique
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  amount Float
+  method PaymentMethod
+  status PaymentStatus
+
   transactionId String?
   paidAt        DateTime?
-  
-  createdAt     DateTime      @default(now())
+
+  createdAt DateTime @default(now())
 }
 
 enum PaymentMethod {
@@ -279,90 +277,90 @@ enum PaymentStatus {
 }
 
 model Review {
-  id               String   @id @default(cuid())
-  bookingId        String   @unique
-  booking          Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  bookingId String  @unique
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 
-  clientId         String
-  client           User     @relation(fields: [clientId], references: [id])
+  clientId String
+  client   User   @relation(fields: [clientId], references: [id])
 
   // Overall Rating
-  overallRating    Int      // 1-5 stars
+  overallRating Int // 1-5 stars
 
   // Service-Specific Ratings
-  qualityRating    Int?     // Work quality 1-5
-  timelinessRating Int?     // On-time performance 1-5
-  communicationRating Int?  // Communication 1-5
-  valueRating      Int?     // Value for money 1-5
+  qualityRating       Int? // Work quality 1-5
+  timelinessRating    Int? // On-time performance 1-5
+  communicationRating Int? // Communication 1-5
+  valueRating         Int? // Value for money 1-5
 
   // Feedback
-  comment          String?
-  positives        String?  // What they liked
-  improvements     String?  // What could be better
-  photos           String[]
+  comment      String?
+  positives    String? // What they liked
+  improvements String? // What could be better
+  photos       String[]
 
   // Publishing & Moderation
-  published        Boolean  @default(false) // Admin approval required
-  moderationNotes  String?
-  moderatedById    String?
+  published       Boolean @default(false) // Admin approval required
+  moderationNotes String?
+  moderatedById   String?
 
   // Response
-  response         String?  // Technician/business response
-  responseAt       DateTime?
-  responseById     String?
+  response     String? // Technician/business response
+  responseAt   DateTime?
+  responseById String?
 
   // Trust Signals
-  verifiedJob      Boolean  @default(true) // Confirmed job completion
-  helpful          Int      @default(0)    // Community helpful votes
+  verifiedJob Boolean @default(true) // Confirmed job completion
+  helpful     Int     @default(0) // Community helpful votes
 
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model JobAssignment {
-  id            String            @id @default(cuid())
-  bookingId     String            @map("job_assignment_booking_id")
-  booking       Booking           @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  bookingId String  @map("job_assignment_booking_id")
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 
-  technicianId  String
-  technician    TechnicianProfile @relation(fields: [technicianId], references: [id], onDelete: Cascade)
+  technicianId String
+  technician   TechnicianProfile @relation(fields: [technicianId], references: [id], onDelete: Cascade)
 
-  assignedById  String
-  assignedBy    User              @relation("AssignedByUser", fields: [assignedById], references: [id])
+  assignedById String
+  assignedBy   User   @relation("AssignedByUser", fields: [assignedById], references: [id])
 
-  assignedAt    DateTime          @default(now())
-  notes         String?
+  assignedAt DateTime @default(now())
+  notes      String?
 
   @@unique([bookingId], map: "job_assignment_booking_id_unique")
 }
 
 model TechnicianAvailability {
-  id            String            @id @default(cuid())
-  technicianId  String
-  technician    TechnicianProfile @relation(fields: [technicianId], references: [id], onDelete: Cascade)
+  id           String            @id @default(cuid())
+  technicianId String
+  technician   TechnicianProfile @relation(fields: [technicianId], references: [id], onDelete: Cascade)
 
-  date          DateTime          @db.Date
-  timeSlots     String[]
-  isAvailable   Boolean           @default(true)
+  date        DateTime @db.Date
+  timeSlots   String[]
+  isAvailable Boolean  @default(true)
 
   @@unique([technicianId, date])
 }
 
 model AMCContract {
-  id          String         @id @default(cuid())
-  clientId    String
-  client      ClientProfile  @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  
-  tier        AMCTier
-  startDate   DateTime
-  endDate     DateTime
-  
-  price       Float
-  services    String[]
-  
-  status      ContractStatus
-  
-  createdAt   DateTime       @default(now())
+  id       String        @id @default(cuid())
+  clientId String
+  client   ClientProfile @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  tier      AMCTier
+  startDate DateTime
+  endDate   DateTime
+
+  price    Float
+  services String[]
+
+  status ContractStatus
+
+  createdAt DateTime @default(now())
 }
 
 enum AMCTier {
