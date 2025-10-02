@@ -50,45 +50,68 @@ export async function POST(request: NextRequest) {
     }
 
     // Create user and technician profile in a transaction
-    const newUser = await prisma.user.create({
-      data: {
-        name,
-        email,
-        phone,
-        passwordHash,
-        role: 'TECHNICIAN',
-        verified: false, // Admin needs to verify
-        technicianProfile: {
-          create: {
-            ...technicianData,
-            status: (status || 'UNDER_REVIEW') as any,
-            bio: technicianData.bio || '',
-            experienceYears: technicianData.experienceYears || 0,
-            certifications: technicianData.certifications || [],
-            hasVehicle: technicianData.hasVehicle || false,
-            canTravelOutsideCity: technicianData.canTravelOutsideCity || true,
-            verified: false,
-          } as any
+    console.log('Creating technician profile with data:', {
+      name,
+      email,
+      phone,
+      role: 'TECHNICIAN',
+      technicianData: technicianData
+    })
+
+    try {
+      const newUser = await prisma.user.create({
+        data: {
+          name,
+          email,
+          phone,
+          passwordHash,
+          role: 'TECHNICIAN',
+          verified: false, // Admin needs to verify
+          technicianProfile: {
+            create: {
+              ...technicianData,
+              status: (status || 'UNDER_REVIEW') as any,
+              bio: technicianData.bio || '',
+              experienceYears: technicianData.experienceYears || 0,
+              certifications: technicianData.certifications || [],
+              licenses: [],
+              serviceAreas: technicianData.serviceAreas || [],
+              specialties: technicianData.specialties || [],
+              preferredServices: technicianData.preferredServices || technicianData.specialties || [],
+              hasVehicle: technicianData.hasVehicle || false,
+              canTravelOutsideCity: technicianData.canTravelOutsideCity || true,
+              verified: false,
+            }
+          }
+        },
+        include: {
+          technicianProfile: true
         }
-      },
-      include: {
-        technicianProfile: true
-      }
-    })
+      })
 
-    // Remove sensitive data from response
-    const { passwordHash: _, ...safeUser } = newUser
-    const safeTechnicianProfile = (newUser as any).technicianProfile ? {
-      ...(newUser as any).technicianProfile,
-      // Include any additional processing if needed
-    } : null
+      console.log('Successfully created user and technician profile:', {
+        userId: newUser.id,
+        profileId: newUser.technicianProfile?.id
+      })
 
-    return NextResponse.json({
-      success: true,
-      message: 'Technician account created successfully. Please wait for admin approval.',
-      user: safeUser,
-      technicianProfile: safeTechnicianProfile
-    })
+      // Remove sensitive data from response
+      const { passwordHash: _, ...safeUser } = newUser
+      const safeTechnicianProfile = (newUser as any).technicianProfile ? {
+        ...(newUser as any).technicianProfile,
+        // Include any additional processing if needed
+      } : null
+
+      return NextResponse.json({
+        success: true,
+        message: 'Technician account created successfully. Please wait for admin approval.',
+        user: safeUser,
+        technicianProfile: safeTechnicianProfile
+      })
+
+    } catch (createError) {
+      console.error('Database creation error:', createError)
+      throw createError // Re-throw to be caught by outer catch
+    }
 
   } catch (error) {
     console.error('Technician registration error:', error)
