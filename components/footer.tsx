@@ -26,9 +26,15 @@ const Footer = () => {
       { label: 'Carpentry', href: '/services/carpentry' },
       { label: 'Painting', href: '/services/painting' },
     ],
+    technicians: [
+      { label: 'Join Our Team', href: '/technician/onboard' },
+      { label: 'Technician Portal', href: '/technician/dashboard' },
+      { label: 'Partner Benefits', href: '/technicians' },
+      { label: 'Support & Training', href: '/technician/support' },
+      { label: 'Safety Guidelines', href: '/technician/safety' },
+    ],
     company: [
       { label: 'About Us', href: '/about' },
-      { label: 'Our Technicians', href: '/technicians' },
       { label: 'Contact', href: '/contact' },
       { label: 'Careers', href: '/careers' },
     ],
@@ -45,9 +51,9 @@ const Footer = () => {
     <footer className="bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-12">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-6 gap-8">
           {/* Company Info */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <LucideIcons.Wrench className="w-5 h-5 text-white" />
@@ -83,6 +89,15 @@ const Footer = () => {
                 </div>
               </div>
             </div>
+
+            <div className="mt-6">
+              <Link href="/technician/onboard">
+                <button className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors inline-flex items-center gap-2">
+                  <LucideIcons.Wrench className="w-4 h-4" />
+                  Join Our Team
+                </button>
+              </Link>
+            </div>
           </div>
 
           {/* Services */}
@@ -90,6 +105,23 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Services</h3>
             <ul className="space-y-2">
               {footerLinks.services.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-gray-300 hover:text-white transition-colors duration-200"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* For Technicians */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">For Technicians</h3>
+            <ul className="space-y-2">
+              {footerLinks.technicians.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}

@@ -196,8 +196,96 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* How It Works */}
+      {/* Why Choose Us + Technician Recruitment */}
       <section className="py-16 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Why Choose Bahrain Handyman?
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
+              Join our trusted community of professionals and homeowners in Bahrain.
+            </p>
+          </div>
+
+          {/* For Customers */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <div className="bg-white rounded-lg shadow-sm p-8">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <LucideIcons.User className="w-8 h-8 text-blue-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">For Homeowners</h3>
+                <p className="text-gray-600">Need professional handyman services?</p>
+              </div>
+
+              <div className="space-y-4 mb-6">
+                <div className="flex items-start">
+                  <LucideIcons.CheckCircle className="w-5 h-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
+                  <span className="text-gray-700">Licensed & background-checked technicians</span>
+                </div>
+                <div className="flex items-start">
+                  <LucideIcons.CheckCircle className="w-5 h-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
+                  <span className="text-gray-700">Transparent pricing, no hidden fees</span>
+                </div>
+                <div className="flex items-start">
+                  <LucideIcons.CheckCircle className="w-5 h-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
+                  <span className="text-gray-700">Insured work with workmanship guarantee</span>
+                </div>
+                <div className="flex items-start">
+                  <LucideIcons.CheckCircle className="w-5 h-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
+                  <span className="text-gray-700">Average 2-hour response time</span>
+                </div>
+              </div>
+
+              <Link href="/book/general">
+                <Button className="w-full">
+                  Book a Service Now
+                </Button>
+              </Link>
+            </div>
+
+            {/* For Technicians */}
+            <div className="bg-white rounded-lg shadow-sm p-8 border-2 border-orange-200">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <LucideIcons.Wrench className="w-8 h-8 text-orange-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">For Professionals</h3>
+                <p className="text-gray-600">Want to join Bahrain's top handyman network?</p>
+              </div>
+
+              <div className="space-y-4 mb-6">
+                <div className="flex items-start">
+                  <LucideIcons.CheckCircle className="w-5 h-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
+                  <span className="text-gray-700">Consistent job requests from vetted customers</span>
+                </div>
+                <div className="flex items-start">
+                  <LucideIcons.CheckCircle className="w-5 h-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
+                  <span className="text-gray-700">Professional platform with built-in marketing</span>
+                </div>
+                <div className="flex items-start">
+                  <LucideIcons.CheckCircle className="w-5 h-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
+                  <span className="text-gray-700">Competitive rates with direct customer payments</span>
+                </div>
+                <div className="flex items-start">
+                  <LucideIcons.CheckCircle className="w-5 h-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
+                  <span className="text-gray-700">Work on your schedule, set your availability</span>
+                </div>
+              </div>
+
+              <Link href="/technician/onboard">
+                <Button className="w-full bg-orange-600 hover:bg-orange-700">
+                  Join Our Team
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">

@@ -50,7 +50,13 @@ const Navigation = () => {
           </div>
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-3">
+            <Link href="/technician/onboard">
+              <Button variant="outline" size="sm" className="border-orange-300 text-orange-600 hover:bg-orange-50">
+                <LucideIcons.Wrench className="w-4 h-4 mr-2" />
+                Join as Technician
+              </Button>
+            </Link>
             <Link href="/auth/signin">
               <Button variant="ghost" size="sm">
                 <LucideIcons.User className="w-4 h-4 mr-2" />
