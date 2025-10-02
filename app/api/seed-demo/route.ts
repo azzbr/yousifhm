@@ -5,17 +5,19 @@ import bcrypt from 'bcryptjs'
 
 export async function POST(request: NextRequest) {
   try {
-    // Check if this is running in development
-    if (process.env.NODE_ENV !== 'development') {
+    // Allow demo seeding in development mode or when explicitly enabled
+    const allowSeeding = process.env.NODE_ENV === 'development' ||
+                        process.env.ALLOW_DEMO_SEEDING === 'true'
+
+    if (!allowSeeding) {
       return NextResponse.json(
-        { success: false, message: 'Demo seeding only available in development' },
+        { success: false, message: 'Demo seeding is disabled for this environment' },
         { status: 403 }
       )
     }
 
-    // In development mode, skip authentication for easier testing
-    // In production, authentication should be enforced
-    // Note: This route is already restricted to development mode only at the top
+    // Skip authentication for easier testing during draft phase
+    // TODO: Re-enable authentication validation before production launch
 
     // Seed demo accounts
     const demoUsers = [

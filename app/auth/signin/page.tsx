@@ -213,9 +213,16 @@ export default function SignInPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
+              <div className="flex items-center justify-between">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  Password
+                </label>
+                <div className="text-sm">
+                  <Link href="/auth/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
+                    Forgot your password?
+                  </Link>
+                </div>
+              </div>
               <div className="relative">
                 <input
                   id="password"
@@ -292,8 +299,10 @@ export default function SignInPage() {
               </>
             ) : selectedRole === 'customer' ? (
               <>
-                Need an account?{' '}
-                <span className="text-gray-500">(Registration coming soon)</span>
+                Don't have an account?{' '}
+                <Link href="/auth/register" className="font-medium text-blue-600 hover:text-blue-500">
+                  Create account
+                </Link>
               </>
             ) : (
               <>

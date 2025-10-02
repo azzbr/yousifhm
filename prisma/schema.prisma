@@ -38,10 +38,16 @@ model ClientProfile {
   id        String   @id @default(cuid())
   userId    String   @unique
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   addresses         Address[]
   favoriteServices  Service[]
   amcContracts      AMCContract[]
+
+  // Notification preferences stored as JSON
+  notificationSettings String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 }
 
 model TechnicianProfile {
