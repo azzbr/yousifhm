@@ -84,19 +84,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           return {
             id: user.id,
-            email: user.email,
+            email: user.email as string,
             name: user.name,
             role: user.role,
             verified: user.verified
-          }
+          } as any
         } catch (dbError) {
           // If database fails, fall back to demo mode
           console.warn('Database auth failed, attempting demo mode...')
-          const demoUser = demoUsers[credentials.email as keyof typeof demoUsers]
+          const email = credentials.email as string
+          const demoUser = demoUsers[email as keyof typeof demoUsers]
           if (demoUser && credentials.password === 'demo123') {
             return {
               id: demoUser.id,
-              email: credentials.email,
+              email: email,
               name: demoUser.name,
               role: demoUser.role,
               verified: demoUser.verified
