@@ -3,6 +3,8 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { bookingFormSchema } from '@/lib/validations'
 
+export const dynamic = 'force-dynamic'
+
 // Email function - add Resend integration later
 const sendBookingConfirmation = async (booking: any, contact: any) => {
   // TODO: Add Resend email integration
