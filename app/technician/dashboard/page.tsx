@@ -168,28 +168,7 @@ export default function TechnicianDashboard() {
   const completedJobs = jobs.filter(job => job.status === 'COMPLETED')
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">My Dashboard</h1>
-              <p className="mt-2 text-gray-600">
-                Manage your assigned jobs and track your work
-              </p>
-            </div>
-            <Link
-              href="/technician/profile"
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Update Profile
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto">
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
@@ -300,7 +279,12 @@ export default function TechnicianDashboard() {
                         </div>
                         <div className="flex items-center text-sm">
                           <Phone className="w-4 h-4 mr-2 text-gray-500" />
-                          <span>{job.contact.phone}</span>
+                          <a
+                            href={`tel:${job.contact.phone}`}
+                            className="text-blue-600 hover:text-blue-700 hover:underline"
+                          >
+                            {job.contact.phone}
+                          </a>
                         </div>
                       </div>
                       <button
@@ -352,7 +336,7 @@ export default function TechnicianDashboard() {
                         </div>
                         <div>
                           <p><strong>Customer:</strong> {job.contact.firstName} {job.contact.lastName}</p>
-                          <p><strong>Phone:</strong> {job.contact.phone}</p>
+                          <p><strong>Phone:</strong> <a href={`tel:${job.contact.phone}`} className="text-blue-600 hover:underline">{job.contact.phone}</a></p>
                         </div>
                       </div>
                     </div>
@@ -399,7 +383,6 @@ export default function TechnicianDashboard() {
             </div>
           )}
         </div>
-      </div>
     </div>
   )
 }

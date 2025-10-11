@@ -7,10 +7,8 @@ import { useSession, signOut } from 'next-auth/react'
 import { redirect } from 'next/navigation'
 import {
   Home,
+  User,
   Calendar,
-  Users,
-  Star,
-  BarChart3,
   Settings,
   LogOut,
   Menu,
@@ -19,16 +17,14 @@ import {
   Wrench
 } from 'lucide-react'
 
-  const navigation = [
-  { name: 'Dashboard', href: '/admin', icon: Home },
-  { name: 'Bookings', href: '/admin/bookings', icon: Calendar },
-  { name: 'Technicians', href: '/admin/technicians', icon: Users },
-  { name: 'Reviews', href: '/admin/reviews', icon: Star },
-  { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
-  { name: 'Settings', href: '/admin/settings', icon: Settings },
+const navigation = [
+  { name: 'My Jobs', href: '/technician/dashboard', icon: Wrench },
+  { name: 'Profile', href: '/technician/profile', icon: User },
+  { name: 'History', href: '/technician/history', icon: Calendar },
+  { name: 'Settings', href: '/technician/settings', icon: Settings },
 ]
 
-export default function AdminLayout({
+export default function TechnicianLayout({
   children
 }: {
   children: React.ReactNode
@@ -36,19 +32,6 @@ export default function AdminLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
   const { data: session, status } = useSession()
-
-  // Dynamic page info based on route
-  const getPageInfo = (pathname: string) => {
-    if (pathname === '/admin') return { title: 'Dashboard', subtitle: 'Overview of your handyman business operations' }
-    if (pathname === '/admin/bookings') return { title: 'Bookings', subtitle: 'Manage all customer booking requests' }
-    if (pathname === '/admin/technicians') return { title: 'Technicians', subtitle: 'View and manage your service technicians' }
-    if (pathname === '/admin/reviews') return { title: 'Reviews', subtitle: 'Monitor customer feedback and ratings' }
-    if (pathname === '/admin/analytics') return { title: 'Analytics', subtitle: 'Business performance and insights' }
-    if (pathname === '/admin/settings') return { title: 'Settings', subtitle: 'Configure your business preferences' }
-    return { title: 'Dashboard', subtitle: 'Overview of your handyman business operations' }
-  }
-
-  const { title: pageTitle, subtitle: pageSubtitle } = getPageInfo(pathname || '')
 
   if (status === 'loading') {
     return (
@@ -58,9 +41,13 @@ export default function AdminLayout({
     )
   }
 
-  // If not authenticated, redirect to signin
   if (!session) {
-    redirect('/auth/signin?callbackUrl=/admin')
+    redirect('/auth/signin?callbackUrl=/technician/dashboard')
+  }
+
+  // If not authenticated as TECHNICIAN, redirect
+  if ((session.user as any)?.role !== 'TECHNICIAN') {
+    redirect('/auth/signin?callbackUrl=/technician/dashboard')
   }
 
   return (
@@ -83,7 +70,7 @@ export default function AdminLayout({
             <Building2 className="w-8 h-8 text-blue-600" />
             <div>
               <h1 className="text-xl font-bold text-gray-900">Bahrain Handyman</h1>
-              <p className="text-sm text-gray-500">Admin Panel</p>
+              <p className="text-sm text-gray-500">Technician Portal</p>
             </div>
           </div>
           <button
@@ -117,28 +104,28 @@ export default function AdminLayout({
           })}
         </nav>
 
-        {/* User info and logout - No absolute positioning */}
+        {/* User info and sign out - At bottom like admin */}
         <div className="mt-auto p-3 border-t border-gray-200 bg-white">
           <div className="flex items-center space-x-3 mb-4">
-            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
               <span className="text-white text-sm font-medium">
-                {session.user?.name?.charAt(0)?.toUpperCase() || 'A'}
+                {session.user?.name?.charAt(0)?.toUpperCase() || 'T'}
               </span>
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate">
-                {session.user?.name}
+                {session.user?.name || 'Technician'}
               </p>
-              <p className="text-xs text-gray-500 capitalize">
-                {String((session.user as any)?.role)?.toLowerCase() || 'admin'}
+              <p className="text-xs text-gray-500">
+                Field Technician
               </p>
             </div>
           </div>
           <button
-            onClick={() => signOut()}
-            className="flex items-center space-x-3 w-full px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            onClick={() => signOut({ callbackUrl: '/' })}
+            className="flex items-center justify-center space-x-3 w-full px-4 py-3 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
           >
-            <LogOut className="w-5 h-5" />
+            <LogOut className="w-4 h-4" />
             <span>Sign Out</span>
           </button>
         </div>
@@ -146,8 +133,8 @@ export default function AdminLayout({
 
       {/* Main content - Flex-1 fills remaining space */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top bar with page header */}
-        <div className="bg-white border-b border-gray-200 px-4 py-4 lg:px-6 shadow-sm">
+        {/* Simple header - Not as complex as admin */}
+        <div className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
           <div className="flex items-center justify-between">
             <button
               onClick={() => setSidebarOpen(true)}
@@ -158,15 +145,8 @@ export default function AdminLayout({
 
             <div className="flex items-center ml-auto lg:ml-0">
               <div className="text-left lg:text-right">
-                <p className="text-lg font-semibold text-gray-900">
-                  {pageTitle || "Dashboard"}
-                </p>
-                <p className="text-sm text-gray-600">
-                  {pageSubtitle || "Overview of your handyman business operations"}
-                </p>
-                <p className="text-xs text-gray-400">
-                  Last updated: {new Date().toLocaleString()}
-                </p>
+                <p className="text-lg font-semibold text-gray-900">Technician Dashboard</p>
+                <p className="text-sm text-gray-600">Manage your assigned jobs</p>
               </div>
             </div>
           </div>

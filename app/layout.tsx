@@ -4,6 +4,7 @@ import './globals.css'
 import Navigation from '@/components/navigation'
 import Footer from '@/components/footer'
 import SessionWrapper from '@/components/session-wrapper'
+import ConditionalLayout from '@/components/conditional-layout'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -47,13 +48,9 @@ export default function RootLayout({
     <html lang="en" className="scroll-smooth">
       <body className={`${inter.className} antialiased`}>
         <SessionWrapper>
-          <div className="min-h-screen flex flex-col">
-            <Navigation />
-            <main className="flex-grow">
-              {children}
-            </main>
-            <Footer />
-          </div>
+          <ConditionalLayout>
+            {children}
+          </ConditionalLayout>
         </SessionWrapper>
       </body>
     </html>
