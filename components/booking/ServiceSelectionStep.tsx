@@ -1,17 +1,64 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { getAllServices } from '@/lib/mock-data'
 import { Button } from '@/components/ui/button'
 import * as LucideIcons from 'lucide-react'
+
+interface Service {
+  id: string
+  name: string
+  slug: string
+  description: string
+  category: string
+  icon: string
+  priority: number
+  active: boolean
+  pricingOptions: {
+    id: string
+    serviceId: string
+    name: string
+    type: string
+    price: number
+    duration: number
+    description: string
+    popular: boolean
+  }[]
+}
 
 export function ServiceSelectionStep() {
   const { watch, setValue, register } = useFormContext()
   const selectedServiceId = watch('serviceId')
   const selectedPricingOptionId = watch('pricingOptionId')
 
-  const services = getAllServices()
+  const [services, setServices] = useState<Service[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Fetch services from API
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch('/api/services')
+        const data = await response.json()
+
+        if (!data.success) {
+          throw new Error('Failed to fetch services')
+        }
+
+        setServices(data.services || [])
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load services')
+        console.error('Services fetch error:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchServices()
+  }, [])
+
   const selectedService = services.find(s => s.id === selectedServiceId)
   const selectedServicePricingOptions = selectedService?.pricingOptions || []
 
@@ -27,45 +74,72 @@ export function ServiceSelectionStep() {
       {/* Service Selection */}
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Service</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {services.map((service) => {
-            const IconComponent = (LucideIcons as any)[service.icon] as React.ComponentType<{
-              className?: string
-            }>
 
-            return (
-              <button
-                key={service.id}
-                type="button"
-                onClick={() => {
-                  setValue('serviceId', service.id)
-                  setValue('pricingOptionId', '') // Reset pricing when service changes
-                }}
-                className={`p-4 border rounded-lg text-left transition-all ${
-                  selectedServiceId === service.id
-                    ? 'border-blue-500 bg-blue-50 shadow-sm'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                }`}
-              >
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="p-4 border border-gray-200 rounded-lg animate-pulse">
                 <div className="flex items-start gap-3">
-                  {IconComponent && (
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                      selectedServiceId === service.id ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'
-                    }`}>
-                      <IconComponent className="w-5 h-5" />
-                    </div>
-                  )}
+                  <div className="w-10 h-10 bg-gray-200 rounded-lg"></div>
                   <div className="flex-1">
-                    <h4 className="font-medium text-gray-900">{service.name}</h4>
-                    <p className="text-sm text-gray-600 line-clamp-2 mt-1">
-                      {service.description}
-                    </p>
+                    <div className="h-5 bg-gray-200 rounded w-32 mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-48"></div>
                   </div>
                 </div>
-              </button>
-            )
-          })}
-        </div>
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <p className="text-red-700">Failed to load services. Please try again.</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
+            >
+              Reload page
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {services.map((service) => {
+              const IconComponent = (LucideIcons as any)[service.icon] as React.ComponentType<{
+                className?: string
+              }>
+
+              return (
+                <button
+                  key={service.id}
+                  type="button"
+                  onClick={() => {
+                    setValue('serviceId', service.id)
+                    setValue('pricingOptionId', '') // Reset pricing when service changes
+                  }}
+                  className={`p-4 border rounded-lg text-left transition-all ${
+                    selectedServiceId === service.id
+                      ? 'border-blue-500 bg-blue-50 shadow-sm'
+                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    {IconComponent && (
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                        selectedServiceId === service.id ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        <IconComponent className="w-5 h-5" />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <h4 className="font-medium text-gray-900">{service.name}</h4>
+                      <p className="text-sm text-gray-600 line-clamp-2 mt-1">
+                        {service.description}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       {/* Pricing Options */}

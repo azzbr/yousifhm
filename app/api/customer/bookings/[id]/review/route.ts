@@ -96,6 +96,7 @@ export async function POST(
         comment,
         positives,
         improvements,
+        photos: '[]' as any, // Empty JSON array for photos
         published: true, // Customer reviews are published immediately
         verifiedJob: true // The job is verified as completed
       }

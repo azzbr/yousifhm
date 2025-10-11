@@ -28,16 +28,7 @@ export async function GET(request: NextRequest) {
         hasSome: serviceAreas
       }
     }
-    if (specialties.length > 0) {
-      // For specialties, we need to check if technician has the service in their specialties relation
-      where.specialties = {
-        some: {
-          category: {
-            in: specialties
-          }
-        }
-      }
-    }
+    // Note: Specialty filtering removed because specialties is a String array field
 
     // Fetch technicians with related data
     const technicians = await prisma.technicianProfile.findMany({
@@ -51,13 +42,6 @@ export async function GET(request: NextRequest) {
             name: true
           }
         },
-        specialties: {
-          select: {
-            id: true,
-            name: true,
-            category: true
-          }
-        },
         bookings: {
           select: {
             id: true,
@@ -68,7 +52,11 @@ export async function GET(request: NextRequest) {
                 name: true
               }
             }
-          }
+          },
+          where: {
+            status: { not: 'CANCELLED' }
+          },
+          take: 5 // Limit recent bookings
         }
       },
       orderBy: [

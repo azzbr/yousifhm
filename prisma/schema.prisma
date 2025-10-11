@@ -5,7 +5,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -63,8 +63,8 @@ model TechnicianProfile {
 
   // Professional Details
   experienceYears Int
-  certifications  String[]
-  licenses        String[] // Professional licenses/certificates
+  certifications  String // JSON string array for SQLite compatibility
+  licenses        String // JSON string array for SQLite compatibility
   backgroundCheck Boolean  @default(false)
   verified        Boolean  @default(false)
 
@@ -76,9 +76,9 @@ model TechnicianProfile {
   customerSatisfaction Float @default(0)
 
   // Service Areas & Specialties
-  serviceAreas      String[] // Bahrain areas they serve
-  specialties       String[] // Service names they provide
-  preferredServices String[] // Their top specialty names
+  serviceAreas      String // JSON string array for SQLite compatibility
+  specialties       String // JSON string array for SQLite compatibility
+  preferredServices String // JSON string array for SQLite compatibility
 
   // Logistics
   hasVehicle           Boolean @default(false)
@@ -92,7 +92,7 @@ model TechnicianProfile {
   // Status & Scheduling
   status         TechnicianStatus @default(INACTIVE)
   maxJobsPerDay  Int              @default(5)
-  preferredTimes String[] // Morning, afternoon, evening
+  preferredTimes String // JSON string array for SQLite compatibility
 
   // Business Relations
   bookings       Booking[]
@@ -297,7 +297,7 @@ model Review {
   comment      String?
   positives    String? // What they liked
   improvements String? // What could be better
-  photos       String[]
+  photos       String // JSON string array for SQLite compatibility
 
   // Publishing & Moderation
   published       Boolean @default(false) // Admin approval required
@@ -339,8 +339,8 @@ model TechnicianAvailability {
   technicianId String
   technician   TechnicianProfile @relation(fields: [technicianId], references: [id], onDelete: Cascade)
 
-  date        DateTime @db.Date
-  timeSlots   String[]
+  date        String // YYYY-MM-DD format as string for SQLite compatibility
+  timeSlots   String // JSON string array for SQLite compatibility
   isAvailable Boolean  @default(true)
 
   @@unique([technicianId, date])
@@ -356,7 +356,7 @@ model AMCContract {
   endDate   DateTime
 
   price    Float
-  services String[]
+  services String // JSON string array for SQLite compatibility
 
   status ContractStatus
 
