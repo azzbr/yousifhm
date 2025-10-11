@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
+const DEMO_MODE = process.env.DEMO_MODE === 'true'
+
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const session = await auth()
@@ -13,7 +17,78 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Fetch jobs assigned to this technician
+    // DEMO MODE: Return mock technician jobs
+    if (DEMO_MODE && (session.user as any).id.startsWith('demo-tech')) {
+      const demoJobs = [
+        {
+          id: 'demo-job-1',
+          bookingNumber: 'BH-2025-001',
+          status: 'ASSIGNED',
+          scheduledDate: '2025-11-15T10:30:00.000Z',
+          service: {
+            id: '1',
+            name: 'Air Conditioning Maintenance',
+            category: 'AC_SERVICES'
+          },
+          pricingOption: {
+            id: '1',
+            name: 'Standard Service',
+            price: 25000,
+            duration: 120
+          },
+          address: {
+            area: 'Manama',
+            building: 'Building 123',
+            block: 'Block 456',
+            additionalInfo: 'Apartment 5B'
+          },
+          contact: {
+            firstName: 'Ahmad',
+            lastName: 'Al-Khalid',
+            phone: '+973 3245 6789',
+            email: 'ahmad@example.com'
+          },
+          notes: 'AC not cooling properly'
+        },
+        {
+          id: 'demo-job-2',
+          bookingNumber: 'BH-2025-002',
+          status: 'IN_PROGRESS',
+          scheduledDate: '2025-11-12T14:00:00.000Z',
+          service: {
+            id: '2',
+            name: 'Plumbing Repair',
+            category: 'PLUMBING'
+          },
+          pricingOption: {
+            id: '2',
+            name: 'Emergency Call',
+            price: 30000,
+            duration: 60
+          },
+          address: {
+            area: 'Seef',
+            building: 'Villa 789',
+            block: 'Block 123'
+          },
+          contact: {
+            firstName: 'Fatima',
+            lastName: 'Al-Zahra',
+            phone: '+973 3456 7890',
+            email: 'fatima@example.com'
+          },
+          notes: 'Leaking pipe under sink'
+        }
+      ]
+
+      return NextResponse.json({
+        success: true,
+        jobs: demoJobs,
+        message: 'Demo jobs retrieved successfully'
+      })
+    }
+
+    // NORMAL MODE: Database queries
     const bookings = await prisma.booking.findMany({
       where: {
         technicianId: session.user.id,

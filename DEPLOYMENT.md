@@ -16,8 +16,11 @@ This project has been fully prepared for Netlify deployment with all build error
 2. **Add these variables:**
 
 ```bash
-# Database Connection (REQUIRED)
-DATABASE_URL=file:./prisma/dev.db
+# Demo Mode (REQUIRED for deployed demo - no database needed)
+DEMO_MODE=true
+
+# Database Connection (OPTIONAL when DEMO_MODE=true)
+# DATABASE_URL=file:./prisma/dev.db
 
 # Authentication (REQUIRED)
 NEXTAUTH_SECRET=your-secure-random-secret-here

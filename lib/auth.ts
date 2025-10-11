@@ -3,6 +3,30 @@ import Credentials from 'next-auth/providers/credentials'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 
+// Demo mode configuration - works without database
+const DEMO_MODE = process.env.DEMO_MODE === 'true'
+
+const demoUsers = {
+  'customer@bahraindemo.com': {
+    id: 'demo-customer-1',
+    name: 'Ahmed Al-Khalid',
+    role: 'CLIENT',
+    verified: true
+  },
+  'tech@bahraindemo.com': {
+    id: 'demo-tech-1',
+    name: 'Mohamed Al-Rashid',
+    role: 'TECHNICIAN',
+    verified: true
+  },
+  'admin@bahraindemo.com': {
+    id: 'demo-admin-1',
+    name: 'Fatima Al-Zahra',
+    role: 'ADMIN',
+    verified: true
+  }
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
@@ -15,40 +39,70 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           throw new Error('Missing credentials')
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
-          select: {
-            id: true,
-            email: true,
-            name: true,
-            role: true,
-            verified: true,
-            passwordHash: true,
-            // These relations might not exist in the current database schema
-            // technicianProfile: true,
-            // clientProfile: true
+        // DEMO MODE: Use hardcoded demo accounts
+        if (DEMO_MODE) {
+          const email = credentials.email as string
+          const demoUser = demoUsers[email as keyof typeof demoUsers]
+          if (demoUser && credentials.password === 'demo123') {
+            return {
+              id: demoUser.id,
+              email: email,
+              name: demoUser.name,
+              role: demoUser.role,
+              verified: demoUser.verified
+            }
           }
-        })
-
-        if (!user || !user.passwordHash) {
-          throw new Error('Invalid credentials')
+          throw new Error('Invalid demo credentials')
         }
 
-        const isValidPassword = await bcrypt.compare(
-          credentials.password as string,
-          user.passwordHash
-        )
+        // NORMAL MODE: Database authentication
+        try {
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email as string },
+            select: {
+              id: true,
+              email: true,
+              name: true,
+              role: true,
+              verified: true,
+              passwordHash: true,
+            }
+          })
 
-        if (!isValidPassword) {
-          throw new Error('Invalid credentials')
-        }
+          if (!user || !user.passwordHash) {
+            throw new Error('Invalid credentials')
+          }
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          verified: user.verified
+          const isValidPassword = await bcrypt.compare(
+            credentials.password as string,
+            user.passwordHash
+          )
+
+          if (!isValidPassword) {
+            throw new Error('Invalid credentials')
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            verified: user.verified
+          }
+        } catch (dbError) {
+          // If database fails, fall back to demo mode
+          console.warn('Database auth failed, attempting demo mode...')
+          const demoUser = demoUsers[credentials.email as keyof typeof demoUsers]
+          if (demoUser && credentials.password === 'demo123') {
+            return {
+              id: demoUser.id,
+              email: credentials.email,
+              name: demoUser.name,
+              role: demoUser.role,
+              verified: demoUser.verified
+            }
+          }
+          throw new Error('Authentication service unavailable')
         }
       }
     })

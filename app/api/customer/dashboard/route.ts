@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
+const DEMO_MODE = process.env.DEMO_MODE === 'true'
+
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const session = await auth()
@@ -22,7 +26,42 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get booking statistics
+    // DEMO MODE: Return mock data
+    if (DEMO_MODE && userId.startsWith('demo-')) {
+      const demoSummary = {
+        total: 8,
+        upcoming: 2,
+        completed: 5,
+        pending: 1
+      }
+
+      const demoBookings = [
+        {
+          id: 'demo-booking-1',
+          bookingNumber: 'BH-2025-001',
+          service: { id: '1', name: 'Air Conditioning Repair' },
+          status: 'CONFIRMED',
+          scheduledDate: '2025-11-15T10:30:00.000Z',
+          technician: { user: { name: 'Ahmed Al-Rashid' } }
+        },
+        {
+          id: 'demo-booking-2',
+          bookingNumber: 'BH-2025-002',
+          service: { id: '2', name: 'Plumbing Service' },
+          status: 'COMPLETED',
+          scheduledDate: '2025-11-12T14:00:00.000Z',
+          technician: { user: { name: 'Mohammed Al-Hassan' } }
+        }
+      ]
+
+      return NextResponse.json({
+        success: true,
+        summary: demoSummary,
+        recentBookings: demoBookings
+      })
+    }
+
+    // NORMAL MODE: Database queries
     const [
       totalBookings,
       upcomingBookings,
