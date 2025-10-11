@@ -59,15 +59,21 @@ export async function POST(request: NextRequest) {
         bookingId: data.bookingId,
         clientId: booking.clientId,
         overallRating: data.overallRating,
-        qualityRating: data.qualityRating,
-        timelinessRating: data.timelinessRating,
-        communicationRating: data.communicationRating,
-        valueRating: data.valueRating,
-        comment: data.comment,
-        positives: data.positives,
-        improvements: data.improvements,
+        qualityRating: data.qualityRating || null,
+        timelinessRating: data.timelinessRating || null,
+        communicationRating: data.communicationRating || null,
+        valueRating: data.valueRating || null,
+        comment: data.comment || null,
+        positives: data.positives || null,
+        improvements: data.improvements || null,
+        photos: JSON.stringify(data.photos || []), // Required: JSON string array
         published: false, // Admin needs to approve
-        verifiedJob: true
+        verifiedJob: true,
+        moderatedById: null,
+        response: null,
+        responseAt: null,
+        responseById: null,
+        helpful: 0
       },
       include: {
         booking: {
